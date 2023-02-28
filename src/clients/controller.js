@@ -50,3 +50,26 @@ const updateClient = (req, res) => {
         }
     });
 };
+
+const deleteClient = (req, res) => {
+    const id = parseInt(req.params.id);
+    pool.query(queries.idExists, [id], (error, results) => {
+        if (error) throw error;
+        if (results.rows.length > 0) {
+            pool.query(queries.deleteClient, [id], (error, results) => {
+                if (error) throw error;
+                res.status(200).send(`Client deleted successfully`);
+            });
+        } else {
+            res.status(404).send('Client not found');
+        }
+    });
+};
+
+module.exports = {
+    getAllClients,
+    getClientById,
+    createClient,
+    deleteClient,
+    updateClient,
+};

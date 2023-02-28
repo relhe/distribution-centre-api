@@ -36,3 +36,17 @@ const createClient = (req, res) => {
         });
     });
 };
+
+const updateClient = (req, res) => {
+    const id = parseInt(req.params.id);
+    const { name, email, telephone, owner, founded, city } = req.body;
+    pool.query(queries.clientExists, [email], (error, results) => {
+        if (error) throw error;
+        if (results.rows.length > 0) {
+            pool.query(queries.updateClient, [name, email, telephone, owner, founded, city, id], (error, results) => {
+                if (error) throw error;
+                res.status(200).send(`Client modified successfully`);
+            });
+        }
+    });
+};

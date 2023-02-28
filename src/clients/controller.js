@@ -22,3 +22,17 @@ const getClientById = (req, res) => {
         }
     });
 };
+
+const createClient = (req, res) => {
+    const { name, email, telephone, owner, founded, city } = req.body;
+    pool.query(queries.clientExists, [email], (error, results) => {
+        if (error) throw error;
+        if (results.rows.length > 0) {
+            res.status(409).send('Client already exists');
+        }
+        pool.query(queries.createClient, [name, email, telephone, owner, founded, city], (error, results) => {
+            if (error) throw error;
+            res.status(201).send(`Client added successfully`);
+        });
+    });
+};

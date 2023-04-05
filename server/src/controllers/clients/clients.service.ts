@@ -1,26 +1,66 @@
+import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Client } from './model/document/clients';
 import { CreateClientDto } from './model/dto/create-client.dto';
 import { UpdateClientDto } from './model/dto/update-client.dto';
 
 @Injectable()
 export class ClientsService {
-    create(createClientDto: CreateClientDto) {
-        return 'This action adds a new client';
+    constructor(@InjectModel(Client.name) private clientModel: Model<Client>) {}
+
+    async create(createClientDto: CreateClientDto): Promise<void> {
+        try {
+            await this.clientModel.create(createClientDto);
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(`Fail : ${error}`);
+        }
     }
 
-    findAll() {
-        return `This action returns all clients`;
+    async findAll(): Promise<Client[]> {
+        try {
+            const clients = await this.clientModel.find().exec();
+            return Promise.resolve(clients);
+        } catch (error) {
+            return Promise.reject(`Fail : ${error}`);
+        }
     }
 
-    findOne(id: number) {
-        return `This action returns a #${id} client`;
+    async findOne(id: string): Promise<Client> {
+        try {
+            const client = await this.clientModel.findById(id).exec();
+            return Promise.resolve(client);
+        } catch (error) {
+            return Promise.reject(`Fail : ${error}`);
+        }
     }
 
-    update(id: number, updateClientDto: UpdateClientDto) {
-        return `This action updates a #${id} client`;
+    async update(id: string, updateClientDto: UpdateClientDto): Promise<void> {
+        try {
+            await this.clientModel
+                .findByIdAndUpdate(id, updateClientDto)
+                .exec();
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(`Fail : ${error}`);
+        }
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} client`;
+    async remove(id: string): Promise<void> {
+        try {
+            await this.clientModel.findByIdAndDelete(id).exec();
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(`Fail : ${error}`);
+        }
+    }
+    async removeAll(): Promise<void> {
+        try {
+            await this.clientModel.deleteMany({}).exec();
+            return Promise.resolve();
+        } catch (error) {
+            return Promise.reject(`Fail : ${error}`);
+        }
     }
 }

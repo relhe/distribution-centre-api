@@ -6,6 +6,8 @@ import {
     Param,
     Delete,
     Put,
+    Res,
+    HttpStatus,
 } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './model/dto/create-client.dto';
@@ -18,6 +20,7 @@ import {
     ApiOkResponse,
     ApiTags,
 } from '@nestjs/swagger';
+import { Response } from 'express';
 
 @ApiTags('Clients')
 @Controller('clients')
@@ -30,9 +33,14 @@ export class ClientsController {
     @ApiNotFoundResponse({
         description: 'The records were not found.',
     })
-    @Get()
-    findAll() {
-        return this.clientsService.findAll();
+    @Get('/')
+    async findAll(@Res() res: Response) {
+        try {
+            const clients = await this.clientsService.findAll();
+            res.status(HttpStatus.OK).json(clients);
+        } catch (error) {
+            res.status(HttpStatus.NOT_FOUND).json({ message: error });
+        }
     }
 
     @ApiCreatedResponse({
@@ -41,9 +49,17 @@ export class ClientsController {
     @ApiConflictResponse({
         description: 'The record already exists.',
     })
-    @Post(/*'create'*/)
-    create(@Body() createClientDto: CreateClientDto) {
-        return this.clientsService.create(createClientDto);
+    @Post('/create')
+    async create(
+        @Body() createClientDto: CreateClientDto,
+        @Res() res: Response,
+    ) {
+        try {
+            await this.clientsService.create(createClientDto);
+            res.status(HttpStatus.CREATED).json({ message: 'Client created' });
+        } catch (error) {
+            res.status(HttpStatus.CONFLICT).json({ message: error });
+        }
     }
 
     @ApiOkResponse({
@@ -53,8 +69,13 @@ export class ClientsController {
         description: 'The record was not found.',
     })
     @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.clientsService.findOne(id);
+    async findOne(@Param('id') id: string, @Res() res: Response) {
+        try {
+            const client = await this.clientsService.findOne(id);
+            res.status(HttpStatus.OK).json(client);
+        } catch (error) {
+            res.status(HttpStatus.NOT_FOUND).json({ message: error });
+        }
     }
 
     @ApiOkResponse({
@@ -64,8 +85,17 @@ export class ClientsController {
         description: 'The record was not found.',
     })
     @Put(':id')
-    update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto) {
-        return this.clientsService.update(id, updateClientDto);
+    async update(
+        @Param('id') id: string,
+        @Body() updateClientDto: UpdateClientDto,
+        @Res() res: Response,
+    ) {
+        try {
+            await this.clientsService.update(id, updateClientDto);
+            res.status(HttpStatus.OK).json({ message: 'Client updated' });
+        } catch (error) {
+            res.status(HttpStatus.NOT_FOUND).json({ message: error });
+        }
     }
 
     @ApiOkResponse({
@@ -75,8 +105,13 @@ export class ClientsController {
         description: 'The record was not found.',
     })
     @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.clientsService.remove(id);
+    async remove(@Param('id') id: string, @Res() res: Response) {
+        try {
+            await this.clientsService.remove(id);
+            res.status(HttpStatus.OK).json({ message: 'Client deleted' });
+        } catch (error) {
+            res.status(HttpStatus.NO_CONTENT).json({ message: error });
+        }
     }
 
     @ApiOkResponse({
@@ -85,8 +120,13 @@ export class ClientsController {
     @ApiNoContentResponse({
         description: 'The records were not found.',
     })
-    @Delete()
-    removeAll() {
-        return this.clientsService.removeAll();
+    @Delete('/')
+    async removeAll(@Res() res: Response) {
+        try {
+            await this.clientsService.removeAll();
+            res.status(HttpStatus.OK).json({ message: 'Clients deleted' });
+        } catch (error) {
+            res.status(HttpStatus.NO_CONTENT).json({ message: error });
+        }
     }
 }

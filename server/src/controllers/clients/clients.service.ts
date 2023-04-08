@@ -1,7 +1,7 @@
 import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Client } from './model/document/clients';
+import { Client } from './model/document/client';
 import { CreateClientDto } from './model/dto/create-client.dto';
 import { UpdateClientDto } from './model/dto/update-client.dto';
 
@@ -47,10 +47,10 @@ export class ClientsService {
         }
     }
 
-    async remove(id: string): Promise<void> {
+    async remove(id: string): Promise<Client> {
         try {
-            await this.clientModel.findByIdAndDelete(id).exec();
-            return Promise.resolve();
+            const client = await this.clientModel.findByIdAndDelete(id).exec();
+            return Promise.resolve(client);
         } catch (error) {
             return Promise.reject(`Fail : ${error}`);
         }
